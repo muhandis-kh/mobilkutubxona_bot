@@ -10,6 +10,8 @@ from aiogram.utils.exceptions import MessageNotModified
 from contextlib import suppress
 import json
 from aiogram.dispatcher import FSMContext
+from random import randrange
+
 # from keyboards.inline.inline import bookMenu
 import json
 # from psycopg2.extras import Json
@@ -36,12 +38,32 @@ def make_query(link):
     else:
         print(f"Error code: {response.status_code}")
 
+
+@dp.message_handler(text="🎲 Tasodifiy kitob", state=None)
+async def send_random_book(message: types.Message):
+    # Bazaga so'rovni kamaytirish uchun va tezlikni oshirish uchun databaza dagi kitoblar soni local holatda kiritib qo'yildi
+        link = "http://mlibrary.up.railway.app/api/file-book-api/"
+    # count = make_query(link=link)
+    # if count:
+        bookMenu = types.InlineKeyboardMarkup(row_width=2)
+        random = randrange(456, 83715)
+        link = f"{link.split('?')[0]}{random}"
+        random_book = make_query(link=link)
+        if random_book:
+            favorites_btn = types.InlineKeyboardButton(text="❤️/💔", callback_data=f"favorites_btn__{random_book['file_link']}")
+            delete_mgs_btn = types.InlineKeyboardButton(text="❌", callback_data="delete_msg")
+            bookMenu.insert(favorites_btn)
+            bookMenu.insert(delete_mgs_btn)
+            await message.answer_document(caption=random_book['description'], document=random_book['file_link'], reply_markup=bookMenu)
+        else:
+            await message.answer(text="😥 Iltimos qayta urunib ko'ring")
+
 def get_books_data(query):
     encoded_query = quote(query)
 
 
     # URL
-    api_url = f"https://mlibrary.up.railway.app/api/file-book-api/?search={encoded_query}"
+    api_url = f"https://mlibrary.up.railway.app/api/file-book-api/?search={encoded_query}&status=True"
 
     return make_query(api_url)
 
@@ -150,28 +172,29 @@ data = tuple
 
 @dp.message_handler(state=None)
 async def search(message: types.Message, state=FSMContext):
-    data = get_keyboards(message.text)
-    text = data[0]
-    status_code = data[1]
-    try:
-        keyboard = data[2]
-        await state.update_data(data[3])
-    except:
-        pass
 
-    
-    if status_code == 200:
-        await message.answer(text, reply_markup=keyboard)
-    else:
-        await message.answer(text)
-           
+    if message.text != "🎲 Tasodifiy kitob":    
+        data = get_keyboards(message.text)
+        text = data[0]
+        status_code = data[1]
+        try:
+            keyboard = data[2]
+            await state.update_data(data[3])
+        except:
+            pass
+
+        
+        if status_code == 200:
+            await message.answer(text, reply_markup=keyboard)
+        else:
+            await message.answer(text)
+            
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('book_'))
 async def process_book_button(callback_query: types.CallbackQuery, state=FSMContext):
     book_link = callback_query.data.split('__')[1]
     data = await state.get_data()
     bookMenu = types.InlineKeyboardMarkup(row_width=2)
-    await callback_query.message.answer_document(document="https://t.me/vkm_book_baza/117680")
     if data:
         for obj in data['results']:
             if obj['file_link'] == book_link:
@@ -213,7 +236,6 @@ async def add_rm_fv_books(callback_query: types.CallbackQuery, state=FSMContext)
     user_telegram_id = callback_query.from_user.id
     document_filename = callback_query.message.document.file_name
     document_link = callback_query.data.split('__')[1]
-    print(document_link)
     
     user_books = await db.get_favorite_books(telegram_id=user_telegram_id)
 
@@ -222,7 +244,7 @@ async def add_rm_fv_books(callback_query: types.CallbackQuery, state=FSMContext)
     if user_books['favorite_books']:
         user_books = json.loads(user_books[0])
         if not(document_filename in user_books):
-            user_books.update({document_filename: document_filename})
+            user_books.update({document_filename: document_link})
             await db.update_user_favorite_books(favorite_books=json.dumps(user_books), telegram_id=user_telegram_id)
             await callback_query.answer(text="Kitob sevimlilar ro'yhatiga qo'shildi")
         else:
