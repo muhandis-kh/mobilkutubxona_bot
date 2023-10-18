@@ -45,6 +45,7 @@ class Database:
         full_name VARCHAR(255) NULL,
         username varchar(255) NULL,
         telegram_id BIGINT NOT NULL UNIQUE,
+        favorite_books JSONB NULL,
         date_of_registration date
         );
         """
@@ -62,6 +63,10 @@ class Database:
     async def add_user(self, full_name, username, telegram_id):
         sql = "INSERT INTO users (full_name, username, telegram_id, date_of_registration) VALUES($1, $2, $3, NOW()::DATE) returning *"
         return await self.execute(sql, full_name, username, telegram_id, fetchrow=True)
+    
+    async def get_favorite_books(self, telegram_id):
+        sql = f"SELECT favorite_books FROM USERS WHERE telegram_id=$1"
+        return await self.execute(sql, telegram_id, fetchrow=True) 
     
     async def select_all_users(self):
         sql = "SELECT * FROM Users"
@@ -95,6 +100,10 @@ class Database:
     async def update_user_username(self, username, telegram_id):
         sql = "UPDATE Users SET username=$1 WHERE telegram_id=$2"
         return await self.execute(sql, username, telegram_id, execute=True)
+
+    async def update_user_favorite_books(self, favorite_books, telegram_id):
+        sql = "UPDATE Users SET favorite_books=$1 WHERE telegram_id=$2"
+        return await self.execute(sql, favorite_books, telegram_id, execute=True)
 
     async def update_active_users(self, active_users, id):
         sql = "UPDATE Details SET active_users=$1 WHERE id=$2"
