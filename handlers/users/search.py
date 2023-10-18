@@ -10,9 +10,11 @@ from aiogram.utils.exceptions import MessageNotModified
 from contextlib import suppress
 import json
 from aiogram.dispatcher import FSMContext
-from keyboards.inline.inline import bookMenu
+# from keyboards.inline.inline import bookMenu
+import json
+# from psycopg2.extras import Json
 
-link = "http://bookapi-production-9bb1.up.railway.app/api/file-book-api/?"
+link = "http://mlibrary.up.railway.app/api/file-book-api/?"
 
 def make_query(link):
     token = TOKEN
@@ -39,7 +41,7 @@ def get_books_data(query):
 
 
     # URL
-    api_url = f"https://bookapi-production-9bb1.up.railway.app/api/file-book-api/?search={encoded_query}"
+    api_url = f"https://mlibrary.up.railway.app/api/file-book-api/?search={encoded_query}"
 
     return make_query(api_url)
 
@@ -168,13 +170,18 @@ async def search(message: types.Message, state=FSMContext):
 async def process_book_button(callback_query: types.CallbackQuery, state=FSMContext):
     book_link = callback_query.data.split('__')[1]
     data = await state.get_data()
-    await state.finish()
-    for obj in data['results']:
-        if obj['file_link'] == book_link:
-            await state.update_data(obj)
-            await callback_query.message.answer_document(caption=obj['description'], document=book_link, reply_markup=bookMenu)
-    
-    await bot.answer_callback_query(callback_query.id)
+    bookMenu = types.InlineKeyboardMarkup(row_width=2)
+    await callback_query.message.answer_document(document="https://t.me/vkm_book_baza/117680")
+    if data:
+        for obj in data['results']:
+            if obj['file_link'] == book_link:
+                favorites_btn = types.InlineKeyboardButton(text="❤️/💔", callback_data=f"favorites_btn__{book_link}")
+                delete_mgs_btn = types.InlineKeyboardButton(text="❌", callback_data="delete_msg")
+                bookMenu.insert(favorites_btn)
+                bookMenu.insert(delete_mgs_btn)
+                await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
+                
+        await bot.answer_callback_query(callback_query.id)
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('next_page_'))
 async def change_page(query: types.CallbackQuery):
@@ -202,17 +209,33 @@ async def change_page(query: types.CallbackQuery):
         await update_message(message=query.message, new_value=keyboards[1], keyboard=keyboards[0])
         
 @dp.callback_query_handler(text_contains="favorites_btn")
-async def add_rm_fv_books(call: types.CallbackQuery, state=FSMContext):
-    user_telegram_id = call.from_user.id
-    print(user_telegram_id)
-    data = await state.get_data()
+async def add_rm_fv_books(callback_query: types.CallbackQuery, state=FSMContext):
+    user_telegram_id = callback_query.from_user.id
+    document_filename = callback_query.message.document.file_name
+    document_link = callback_query.data.split('__')[1]
+    print(document_link)
+    
     user_books = await db.get_favorite_books(telegram_id=user_telegram_id)
-    print(user_books)
+
+    # print(user_books['favorite_books'])
+    favorite_books = {document_filename : document_link}
+    if user_books['favorite_books']:
+        user_books = json.loads(user_books[0])
+        if not(document_filename in user_books):
+            user_books.update({document_filename: document_filename})
+            await db.update_user_favorite_books(favorite_books=json.dumps(user_books), telegram_id=user_telegram_id)
+            await callback_query.answer(text="Kitob sevimlilar ro'yhatiga qo'shildi")
+        else:
+            user_books.pop(document_filename)
+            await db.update_user_favorite_books(favorite_books=json.dumps(user_books), telegram_id=user_telegram_id)
+            await callback_query.answer(text="Kitob sevimlilar ro'yhatidan o'chirildi")
+            
+            
+    else:
+        user_books = dict(user_books)
+        user_books['favorite_books'] = favorite_books
+        await db.update_user_favorite_books(favorite_books=json.dumps(user_books['favorite_books']), telegram_id=user_telegram_id)
+
     
-    
-    
-    # logging.info(f"{callback_data=}")
-    # await call.message.edit_reply_markup(reply_markup=None)
-    # await call.message.answer("Kitoblar", reply_markup=booksMenu)
     # await call.message.delete()
     # await call.answer(cache_time=60)
