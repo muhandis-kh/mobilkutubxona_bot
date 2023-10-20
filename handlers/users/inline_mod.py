@@ -1,6 +1,6 @@
 from aiogram import types
 from loader import dp
-from .search import get_books_data, make_query
+from .functions import get_books_data, make_query
 import time
 from pprint import pprint
 
@@ -16,7 +16,7 @@ async def empty_query(query: types.InlineQuery):
                 results.append(
                     types.InlineQueryResultDocument(
                         id=book['id'],
-                        title=book['document_filename'],
+                        title=book['document_filename'] if book['document_filename'] else book['description'][0:60].replace('\n', ''),
                         mime_type="application/pdf",
                         document_url=book['file_link'],
                         description=book['description'],
