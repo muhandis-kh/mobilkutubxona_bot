@@ -200,6 +200,7 @@ async def process_book_button(callback_query: types.CallbackQuery, state=FSMCont
             if obj['file_link'] == book_link:
                 favorites_btn = types.InlineKeyboardButton(text="❤️/💔", callback_data=f"favorites_btn__{book_link}")
                 delete_mgs_btn = types.InlineKeyboardButton(text="❌", callback_data="delete_msg")
+                # audio_format = types.InlineKeyboardButton(text="🔉 Kitobning audio formatini qidir", callback_data="delete_msg")
                 bookMenu.insert(favorites_btn)
                 bookMenu.insert(delete_mgs_btn)
                 await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
@@ -258,6 +259,17 @@ async def add_rm_fv_books(callback_query: types.CallbackQuery, state=FSMContext)
         user_books['favorite_books'] = favorite_books
         await db.update_user_favorite_books(favorite_books=json.dumps(user_books['favorite_books']), telegram_id=user_telegram_id)
 
+
+@dp.callback_query_handler(text_contains="delete_msg")
+async def delete_msg(callback_query: types.CallbackQuery, state=FSMContext):
+    message = callback_query.message
     
+    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
     # await call.message.delete()
     # await call.answer(cache_time=60)
+  
+  
+# Audio kitoblar apiga qo'shilganda qo'shiladigan bo'lim  
+# @dp.callback_query_handler(text_contains="🔉 Kitobning audio formatini qidir")
+# async def delete_msg(callback_query: types.CallbackQuery, state=FSMContext):
+#     callback_data = callback_query
