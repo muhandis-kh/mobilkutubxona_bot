@@ -4,3 +4,4 @@ from . import random_book
 from . import commands
 from . import search
 from . import my_library
+from . import inline_mod
