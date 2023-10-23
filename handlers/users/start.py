@@ -19,5 +19,5 @@ async def bot_start(message: types.Message):
         
     except asyncpg.exceptions.UniqueViolationError:
         pass
-    await message.answer(f"Assalomu aleykum, {message.from_user.full_name}! \nXush kelibsiz.\nIzlagan kitobingiz nomini imlo qoidalarga amal qilgan holda, lotin alifbosida kiriting.", reply_markup=random_book)
+    await message.answer(f"Assalomu aleykum, {message.from_user.full_name}! 👋 Xush kelibsiz.\n\n🔎 Izlagan kitobingiz nomini imlo qoidalarga amal qilgan holda, lotin alifbosida kiriting.", reply_markup=random_book)
     
