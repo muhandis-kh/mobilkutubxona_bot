@@ -13,10 +13,12 @@ korrektor = Korrektor(KORREKTOR_TOKEN)
 
 alphabet = "latin"
 
+# Matn kirill alifbosida ekanligini tekshiruvchi funksiya
 def has_cyrillic(text):
     return bool(re.search('[а-яА-Я]', text))
 
 
+# kelgan lingda request yuborish uchun funksiya
 def make_query(link):
     token = TOKEN
     
@@ -37,7 +39,7 @@ def make_query(link):
     else:
         print(f"Error code: {response.status_code} {response}")
 
-
+# Text oqrali kitob ma'lumotlarini oluvchi funksiya
 def get_books_data(query):
     
     # Korrektor API ishlamayotganligi sababli kodning bu qismi o'chirib qo'yildi
@@ -45,6 +47,7 @@ def get_books_data(query):
     #     result = korrektor.transliterate(alphabet, query)
     #     encoded_query = quote(result.text)
     # else:
+        # kelgan textni browser formatiga o'tkazish uchun
         encoded_query = quote(query)
 
 
@@ -54,8 +57,11 @@ def get_books_data(query):
         return make_query(api_url)
 
 
+# Kelgan kitob ma'lumotlari asosida tugmalar va kitob nomlarini hosil qilish uchun 
 def get_keyboards_and_text(books_data):
     books = ["📔", "📕", "📖", "📗", "📘", "📙", "📚", "📑", "🔖", "🧾"]
+    
+    # Ma'lumot uzunligiga ko'ra tugmalar joylashuvi uchun
     rows = {
             1: 1,
             2: 2,
@@ -73,7 +79,7 @@ def get_keyboards_and_text(books_data):
         keyboard = types.InlineKeyboardMarkup(row_width=len(books_data['results']))
         
     
-    
+    # Kelgan datada keyingi sahifa uchun link bo'lsa
     if books_data['next']:
         number_page = books_data['next'].split("?")[1][5:6]
         try:
@@ -108,6 +114,7 @@ def get_keyboards_and_text(books_data):
         if book['document_filename']:
             text += f"""{i}. <i>{book['document_filename'][0:60].strip()}</i>  {random.choice(books)}\n"""
         else:
+            #\n f-string ichida ishlatib bo'lmagani uchun Python 2 sintax sidan foydalananildi
             text += """{}. {}  {}\n""".format(i, book['description'][0:60].strip().replace('\n', ''), random.choice(books))
             
         button = types.InlineKeyboardButton(text=i, callback_data=f"book__{book['file_link']}")
@@ -131,7 +138,8 @@ def get_keyboards_and_text(books_data):
     keyboard.insert(next_page_button)
 
     return (keyboard, text)
-    
+  
+# Yuqoridagi funksiyalar orqali ma'lumotlarni yuboruvchi funksiya   
 def get_data(query):
     books_data = get_books_data(query=query)
 
@@ -141,9 +149,11 @@ def get_data(query):
             keyboards_and_text = get_keyboards_and_text(books_data=books_data)
             return (keyboards_and_text[1], 200, keyboards_and_text[0], books_data)
             # await bot.send_message(text="Kitaplar:", reply_markup=keyboard)
+        # So'rov bo'yicha kitob topilmaganda yuboriladigan text
         else:
             text = "🙇 Afsuski bunday kitob topilmadi, iltimos kitob nomini tekshirib ko'ring"
             return (text, 404)
+    # Internet bilan bog'liq hatolik yuzaga kelganida yuboriladigan text
     else:
         text = "🙇 Iltimos qayta urunib ko'ring."
         return (text, 405)
