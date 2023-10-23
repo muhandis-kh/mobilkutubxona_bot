@@ -54,7 +54,7 @@ def get_books_data(query):
         return make_query(api_url)
 
 
-def keyboard(books_data):
+def get_keyboards_and_text(books_data):
     books = ["📔", "📕", "📖", "📗", "📘", "📙", "📚", "📑", "🔖", "🧾"]
     rows = {
             1: 1,
@@ -132,14 +132,14 @@ def keyboard(books_data):
 
     return (keyboard, text)
     
-def get_keyboards(query):
+def get_data(query):
     books_data = get_books_data(query=query)
 
     
     if books_data:
         if books_data['count'] > 0:
-            keyboards = keyboard(books_data=books_data)
-            return (keyboards[1], 200, keyboards[0], books_data)
+            keyboards_and_text = get_keyboards_and_text(books_data=books_data)
+            return (keyboards_and_text[1], 200, keyboards_and_text[0], books_data)
             # await bot.send_message(text="Kitaplar:", reply_markup=keyboard)
         else:
             text = "🙇 Afsuski bunday kitob topilmadi, iltimos kitob nomini tekshirib ko'ring"
