@@ -7,33 +7,40 @@ import json
 from aiogram.dispatcher import FSMContext
 from .functions import get_keyboards, make_query, keyboard
 from pprint import pprint
+from data.config import ADMINS
 
+# so'rovlar yuborish uchun API shablon linki
 link = "http://mlibrary.up.railway.app/api/file-book-api/?"
 
+#Xabarlarni yangilash uchun funksiya
 async def update_message(message: types.Message, new_value: str, keyboard: json):
     with suppress(MessageNotModified):
       await message.edit_text(text=new_value, reply_markup=keyboard)  
-        
+
+
+
+# Funksiyalardan      
 data = tuple
 
 @dp.message_handler(state=None)
 async def search(message: types.Message, state=FSMContext):
 
-    if message.text != "🎲 Tasodifiy kitob":    
-        data = get_keyboards(message.text)
-        text = data[0]
-        status_code = data[1]
-        try:
-            keyboard = data[2]
-            await state.update_data(data[3])
-        except:
-            pass
+    # if message.text != "🎲 Tasodifiy kitob":    
+    data = get_keyboards(message.text)
+    text = data[0]
+    status_code = data[1]
+    try:
+        keyboard = data[2]
+        await state.update_data(data[3])
+    except Exception as e:
+        msg = f"Ma'lumotlarni olishdada xatolik: {e}"
+        await bot.send_message(chat_id=ADMINS[0], text=msg)
 
-        
-        if status_code == 200:
-            await message.answer(text, reply_markup=keyboard)
-        else:
-            await message.answer(text)
+    
+    if status_code == 200:
+        await message.answer(text, reply_markup=keyboard)
+    else:
+        await message.answer(text)
             
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('book_'))
@@ -49,7 +56,12 @@ async def process_book_button(callback_query: types.CallbackQuery, state=FSMCont
                 # audio_format = types.InlineKeyboardButton(text="🔉 Kitobning audio formatini qidir", callback_data="delete_msg")
                 bookMenu.insert(favorites_btn)
                 bookMenu.insert(delete_mgs_btn)
-                await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
+                try:
+                    await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
+                except Exception as e:
+                    msg = f"Kitobni yuborishda xatolik: {e}"
+                    await bot.send_message(chat_id=ADMINS[0], text=msg)
+                                
             else:
                 print("Obj datada yo'q")        
         await bot.answer_callback_query(callback_query.id)
@@ -68,9 +80,12 @@ async def change_page(query: types.CallbackQuery, state=FSMContext):
         data = make_query(next_page_link)
         await state.update_data(data)
         keyboards = keyboard(data)
-    
-        await update_message(message=query.message, new_value=keyboards[1], keyboard=keyboards[0] )
-
+        try:
+            await update_message(message=query.message, new_value=keyboards[1], keyboard=keyboards[0] )
+        except  Exception as e:
+            msg = f"Xabarni yangilashda xatolik: {e}"
+            await bot.send_message(chat_id=ADMINS[0], text=msg)
+            
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('prev_page_'))
 async def change_page(query: types.CallbackQuery, state=FSMContext):
 
@@ -115,7 +130,12 @@ async def add_rm_fv_books(callback_query: types.CallbackQuery, state=FSMContext)
 async def delete_msg(callback_query: types.CallbackQuery, state=FSMContext):
     message = callback_query.message
     
-    await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+    try:
+        await bot.delete_message(chat_id=message.chat.id, message_id=message.message_id)
+    except Exception as e:
+        msg = f"Xabarni o'chirib yuborishda xatolik: {e}"
+        await bot.send_message(chat_id=ADMINS[0], text=msg)
+        
     # await call.answer(cache_time=60)
   
   

@@ -11,10 +11,8 @@ async def myCommand(message: types.Message):
     if user_books[0]:
         user_books = json.loads(user_books[0])
         keyboard = types.InlineKeyboardMarkup(row_width=1)
-        print(user_books)
         for key, value in user_books.items():
             text = f"{key}"
-            print(value)
             button = types.InlineKeyboardButton(text=text, callback_data=f"my_books__{value}")
             keyboard.insert(button)
         

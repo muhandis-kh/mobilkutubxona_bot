@@ -11,3 +11,4 @@ async def my_books_sender(callback_query: types.CallbackQuery):
     bookMenu.insert(delete_mgs_btn)
     
     await callback_query.message.answer_document(document=book_link, reply_markup=bookMenu)
+    await callback_query.answer()

@@ -6,8 +6,6 @@ from loader import dp
 
 @dp.message_handler(CommandHelp())
 async def bot_help(message: types.Message):
-    text = ("Buyruqlar: ",
-            "/start - Botni ishga tushirish",
-            "/help - Yordam")
+    text = ("/start - Botni qayta ishga tushurish\n/kutubxonam - Tanlangan kitoblar ro'yhati\n\nYordam uchun <a href='https://t.me/khojimirzayev'>men</a> bilan bog'laning")
     
     await message.answer("\n".join(text))
