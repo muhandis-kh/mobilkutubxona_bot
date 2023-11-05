@@ -12,8 +12,9 @@ async def on_startup(dispatcher):
             await db.create()
             await db.create_table_users()       
     except Exception as e:
-        msg = f"Kitobni yuborishda xatolik: {e}"
+        msg = f"Database ni yaratishda xatolik yuzaga keldi: {e}"
         await bot.send_message(chat_id=ADMINS[0], text=msg)
+        print(e)
     # Birlamchi komandalar (/star va /help)
     await set_default_commands(dispatcher)
 
