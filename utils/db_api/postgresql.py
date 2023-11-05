@@ -16,6 +16,7 @@ class Database:
             user=config.DB_USER,
             password=config.DB_PASS,
             host=config.DB_HOST,
+            port=config.DB_PORT,
             database=config.DB_NAME
         )
 
