@@ -14,7 +14,7 @@ async def bot_start(message: types.Message):
                                  )
         # ADMINGA xabar beramiz
         count = await db.count_users()
-        msg = f"{user[1]} bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor."
+        msg = f"{user[1]} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>) bazaga qo'shildi.\nBazada {count} ta foydalanuvchi bor."
         await bot.send_message(chat_id=ADMINS[0], text=msg)
         
     except asyncpg.exceptions.UniqueViolationError:
