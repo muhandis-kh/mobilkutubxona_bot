@@ -28,7 +28,7 @@ async def search(message: types.Message, state=FSMContext):
     
     # if message.text != "🎲 Tasodifiy kitob":    
         data = get_data(message.text)
-        msg = f"<b>TOPILDI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>)"
+        msg = f"<b>✅ TOPILDI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>)"
         await bot.send_message(chat_id=ADMINS[0], text=msg)
 
         text = data[0]
@@ -45,7 +45,7 @@ async def search(message: types.Message, state=FSMContext):
             await message.answer(text, reply_markup=keyboard)
         else:
             await message.answer(text)
-            msg = f"<b>TOPILMADI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>)"
+            msg = f"<b>❌ TOPILMADI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>)"
             await bot.send_message(chat_id=ADMINS[0], text=msg)
 
             
