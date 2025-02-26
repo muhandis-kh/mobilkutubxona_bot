@@ -31,7 +31,7 @@ async def send_message(message: types.Message, state=FSMContext):
     user = await db.select_user(telegram_id=int(user_id))
     
     try:
-        await bot.send_document(chat_id=user_id, document=book_link, caption="SIZ QIDIRGAN KITOBLAR")
+        await bot.send_document(chat_id=user_id, document=book_link, caption="SIZ QIDIRGAN KITOB\n\n@mobilkutubxona_bot")
         await message.answer("Xabar yuborildi")
         await state.finish()
     except Exception as e:
