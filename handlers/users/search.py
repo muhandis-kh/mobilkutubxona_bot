@@ -34,8 +34,9 @@ async def search(message: types.Message, state=FSMContext):
             keyboard = data[2]
             await state.update_data(data[3])
         except Exception as e:
-            msg = f"Ma'lumotlarni olishdada xatolik: {e}"
-            await bot.send_message(chat_id=ADMINS[0], text=msg)
+            # msg = f"Ma'lumotlarni olishdada xatolik: {e}"
+            # await bot.send_message(chat_id=ADMINS[0], text=msg)
+            pass
 
         
         if status_code == 200:
@@ -44,7 +45,7 @@ async def search(message: types.Message, state=FSMContext):
             await message.answer(text, reply_markup=keyboard)
         else:
             await message.answer(text)
-            msg = f"<b>❌ TOPILMADI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>)"
+            msg = f"<b>❌ TOPILMADI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>) || ID: {message.from_user.id}"
             await bot.send_message(chat_id=ADMINS[0], text=msg)
 
             
@@ -58,7 +59,7 @@ async def process_book_button(callback_query: types.CallbackQuery, state=FSMCont
     data = await state.get_data()
     # bookMenu nomi ostida tugmalar to'plami
     bookMenu = types.InlineKeyboardMarkup(row_width=2)
-
+    user_id = str(callback_query.message.chat.id)
     
     if data:
         for obj in data['results']:
@@ -70,7 +71,10 @@ async def process_book_button(callback_query: types.CallbackQuery, state=FSMCont
                 bookMenu.insert(favorites_btn)
                 bookMenu.insert(delete_mgs_btn)
                 try:
-                    await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
+                    if user_id in ADMINS:
+                        await callback_query.message.answer(text = f"KITOB LINKI: {book_link}")
+                    else:   
+                        await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
                 except Exception as e:
                     msg = f"Kitobni yuborishda xatolik: {e}"
                     await bot.send_message(chat_id=ADMINS[0], text=msg)

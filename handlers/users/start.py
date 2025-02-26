@@ -3,7 +3,11 @@ from aiogram.dispatcher.filters.builtin import CommandStart
 import asyncpg
 from loader import dp, db, bot
 from data.config import ADMINS
-from keyboards.default.default import random_book
+from keyboards.default.default import random_book, message_to_user
+
+@dp.message_handler(CommandStart(), user_id=ADMINS)
+async def bot_start(message: types.Message):
+    await message.answer("Nima ish bajaramiz", reply_markup=message_to_user)
 
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message):

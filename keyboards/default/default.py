@@ -6,3 +6,10 @@ random_book = ReplyKeyboardMarkup(
     ],
     resize_keyboard=True,
 )
+
+message_to_user = ReplyKeyboardMarkup(
+    keyboard = [
+        [KeyboardButton(text="Userga xabar yuborish")],
+    ],
+    resize_keyboard=True,
+)
