@@ -28,9 +28,7 @@ async def send_message(message: types.Message, state=FSMContext):
     book_link = message.text
     data = await state.get_data()
     user_id = data.get("user_id", None)
-    
     user = await db.select_user(telegram_id=user_id)
-    
     
     try:
         await bot.send_document(chat_id=user_id, document=book_link, caption="SIZ QIDIRGAN KITOBLAR")
