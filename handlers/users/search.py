@@ -45,7 +45,7 @@ async def search(message: types.Message, state=FSMContext):
             await message.answer(text, reply_markup=keyboard)
         else:
             await message.answer(text)
-            msg = f"<b>❌ TOPILMADI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>) || ID: {message.from_user.id}"
+            msg = f"<b>❌ TOPILMADI !!!</b>\n\nQidirilgan kitob: {message.text}\nQidirgan foydalanuvchi: {message.from_user.full_name} (<a href='tg://user?id={message.from_user.id}'>{('@'+ message.from_user.username) if message.from_user.username else (message.from_user.first_name)}</a>) || ID: `{message.from_user.id}`"
             await bot.send_message(chat_id=ADMINS[0], text=msg)
 
             
@@ -72,7 +72,7 @@ async def process_book_button(callback_query: types.CallbackQuery, state=FSMCont
                 bookMenu.insert(delete_mgs_btn)
                 try:
                     if user_id in ADMINS:
-                        await callback_query.message.answer(text = f"KITOB LINKI: {book_link}")
+                        await callback_query.message.answer(text = f"KITOB LINKI: `{book_link}`")
                     else:   
                         await callback_query.message.answer_document(caption=obj['description'].replace('\n', ''), document=book_link, reply_markup=bookMenu)
                 except Exception as e:
